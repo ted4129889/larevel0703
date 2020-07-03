@@ -1,0 +1,180 @@
+Laravel
+目錄
+app
+	應用程式的核心程式碼
+bootstrap
+	
+config
+	所有應用程式的設定檔
+database
+	資料庫
+public
+	前端控制器和資源檔
+resources
+	視圖、原始資源檔、語言檔
+lang
+	多國語系資源(每個子目錄對應一個語系)
+controllers
+	處理各式資料(model)丟給頁面顯示(view)
+models
+	對應資料物資料表的模型
+views
+	網頁模板目錄(此框架模板叫blade)
+routes
+	1.一般接收到請求都會進到Route去，根據url，給予對應的route做回應
+	api.php //包含RouteServiceProvider放置在api中間件組中的路由。
+	channels.php //註冊應用程式支持的所有事件廣播的地方。
+	console.php //定義php artisan的指令。
+	web.php //大多數的應用，都是以web.php文件定義路由開始的。	
+
+ex1應用
+resources/views/welcome.blade.php
+routes/web.php
+	Route::get('/', function () {
+    	return view('welcome');
+	});
+	view中的文字為xxx.blade.php前方的名稱
+路由
+GET:讀取資料
+POST:傳送資料、表單、上傳檔案
+PUT:更新資料
+DELETE:刪除資料
+
+
+
+Controller
+1.下指令建立控制器
+php artisan make:controller yourname
+2.建立CRUD控制器
+php artisan make:controller --resource yourname
+
+會建立在app/Http/Controller/yourname
+
+3.
+Route::get('/','IndexController@index');
+使用app/Http/Controller/IndexController.php中的index方法
+
+4.查看目前所有路由狀況
+
+View 
+以Blade模板介紹，分為繼承與區塊，視圖檔案以xxx.blade.php做為附檔名，
+通常儲存在resources/views資料夾
+以區塊調整，再以繼承方式合併
+@yield 用來顯示給定區塊的內容
+@section 定義一個內容區塊
+
+
+if陳述
+@if (count($records) === 1)
+    我有一條記錄！
+@elseif (count($records) > 1)
+    我有多條記錄！
+@else
+
+@endif
+
+
+迴圈
+@for ($i = 0; $i < 10; $i++)
+    目前的值為 {{ $i }}
+@endfor
+
+@foreach ($users as $user)
+    <p>此使用者為 {{ $user->id }}</p>
+@endforeach                      
+
+@forelse ($users as $user)
+    <li>{{ $user->name }}</li>
+@empty
+    <p>沒有使用者</p>
+@endforelse
+
+@while (true)
+    <p>我永遠都在跑迴圈。</p>
+@endwhile
+                      
+database
+	config/database.php(預設mysql)
+	在.env 設定即可
+	migration
+	建立資料表名稱和相關代碼
+	php artisan make:migration create_news_table
+	php artisan make:migration create_news_table --create=news
+
+	Schema::create(資料表名稱,參數封包) 建立資料表
+	Schema::rename($from, $to) 修改資料表名稱
+	 Schema::connection 指定特定連線
+	 Schema::drop('users') 移除資料表
+	Schema::dropIfExists('users');
+	 在migration裏
+	 up 表示建立時會執行的方法
+	 dowm 表示 回傳時會執行的方法
+
+	 執行語法(執行遷移)
+	 php artisan migration:會執行所有在miratrion的檔案
+	 php artisan migrate --force(強制執行)
+	 php artisan migrate:rollback:還原上一遷移操作
+	 php artisan migrate:reset:還原所有遷移操作
+	 php artisan migrate:refresh:還原並重新執行
+	 php artisan migrate:refresh --seed
+
+	 檢查是否有存在資料表(含欄位)
+	 if (Schema::hasTable('users')) {}
+	 if (Schema::hasTable('users','email')) {}
+
+	 連接與儲存引擎(先略過)
+
+	 建立欄位(近期常用)
+	 $table->increments('id'); //id 自動遞增
+	 $table->integer('votes'); //integer型態
+	 $table->float('amount');  //float型態
+	 $table->dateTime('created_at');//datetime型態
+	 $table->time('sunrise'); //time型態
+	 $table->date('created_at');//date型態
+	 $table->string('name', 100); //varchar型態並帶長度
+	 $table->uuid('id');//uuid 型態
+	 欄位修飾
+	  $table->string('email')->nullable(); //可空值
+	 更新欄位屬性
+	   $table->string('name', 50)->change();
+	 重新命名欄位
+	    $table->renameColumn('from', 'to');
+	 移除欄位
+	 $table->dropColumn('votes');
+	 $table->dropColumn(['votes', 'avatar', 'location']);(移除多筆)
+	 建立索引
+	 $table->primary('id');
+	 $table->primary(['first', 'last']);
+	 $table->unique('email');
+	 $table->index('state');
+	   $table->string('email')->unique();
+	移除索引
+	$table->dropPrimary('users_id_primary');
+	$table->dropUnique('users_email_unique');
+	$table->dropIndex('geo_state_index');
+
+	外鍵約束(先略過)
+
+Model
+新增model
+php artisan make:model name
+產出於app/
+一般model名稱為單數，開頭大寫
+
+Eloquent ORM
+
+git
+git init 建立專案
+git add . //新增當前目錄的檔案，其他層的不會被新增
+git add --all //新增目前所有的檔案，包含在其他層的檔案
+git add *.html //新增.html的相關檔案
+git status //追蹤檔案
+
+git commit -m "0703" 追蹤完成，可以提交 為這次追蹤的檔案命名
+
+git log 查看commit的歷史訊息
+
+注意:
+ Windows 中的換行符號為 CRLF，Git 會在你提交的時候自動將 CRLF 轉換成 LF，而在 checkout 時將 LF 轉換成 CRLF會有出錯
+ 不希望在 check out 的時候不要轉換為 CRLF
+git config --global core.autocrlf input
